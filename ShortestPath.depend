@@ -1,0 +1,7 @@
+# depslib dependency file v1.0
+1514144174 source:c:\users\billaros\desktop\c++ for c programmers\second assignment\shortestpath\main.cpp
+	<iostream>
+
+1569182579 source:c:\users\billaros\desktop\c++ for c programmers\second assignment\shortestpath\vertex.cpp
+	<vector>
+
