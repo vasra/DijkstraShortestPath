@@ -15,26 +15,22 @@ void Graph::generate()
     float randomValue = 0.0f;
     float weight = 0.0f;
     float currentDensity = 0.0f;
-    short numOfEdges = getNumOfEdges();
 
+    srand(static_cast<float>(time(NULL)));
     for(short i = 0; i < getNumOfVertices(); i++)
     {
-        if( currentDensity >= getDensity() )
-            return;
-
         for(short j = i + 1; j < getNumOfVertices(); j++)
         {
-            if( currentDensity >= getDensity() )
-                return;
-
             randomValue = static_cast<float>(rand()) / (static_cast<float>(RAND_MAX) + 1.0f);
 
             if(randomValue < getDensity())
             {
-                weight = (1.0f + static_cast<float>(rand())) / (static_cast<float>(RAND_MAX) + 10.0f);
-                setAdjacencyMatrix(i, j, weight);
-                numOfEdges++;
-                currentDensity = (2 * numOfEdges) / (getNumOfVertices() * (getNumOfVertices() - 1));
+                weight = static_cast<float>(rand()) / (static_cast<float>(RAND_MAX)) * 10.0f + 1.0f;
+                setEdgeValue(i, j, weight);
+                setNumOfEdges(getNumOfEdges() + 1);
+                currentDensity = (2 * getNumOfEdges()) / (getNumOfVertices() * (getNumOfVertices() - 1));
+                if( currentDensity >= getDensity() )
+                    return;
             }
         }
     }
@@ -49,11 +45,34 @@ void Graph::printGraph()
         for(short j = 0; j < getNumOfVertices(); j++)
         {
             if(j == (getNumOfVertices() - 1))
-                cout << getAdjacencyMatrix(i, j) << ((i == (getNumOfVertices() - 1))?" ] ]":" ],") << endl;
+                cout << getEdgeValue(i, j) << ((i == (getNumOfVertices() - 1))?" ] ]":" ],") << endl;
             else
-                cout << getAdjacencyMatrix(i, j) << ", ";
+                cout << getEdgeValue(i, j) << ", ";
         }
     }
+}
+
+bool Graph::adjacent(short x, short y)
+{
+    return getEdgeValue(x, y) > 0.0f;
+}
+
+std::vector<short> Graph::neighbors(short x)
+{
+    std::vector<short> neighbors;
+    for(short i = 0; i < getNumOfVertices(); i++)
+    {
+        if( adjacent(x, i) )
+            neighbors.push_back(i);
+    }
+    return neighbors;
+}
+
+void Graph::addEdge(short x, short y)
+{
+    srand(static_cast<float>(time(NULL)));
+    float weight = static_cast<float>(rand()) / (static_cast<float>(RAND_MAX)) * 10.0f + 1.0f;
+    setEdgeValue(x, y, weight);
 }
 
 short Graph::getNumOfVertices()
@@ -81,9 +100,9 @@ float Graph::getMaxRange()
     return this->m_maxRange;
 }
 
-float Graph::getAdjacencyMatrix(short i, short j)
+float Graph::getEdgeValue(short x, short y)
 {
-    return this->m_adjacencyMatrix[i][j];
+    return this->m_adjacencyMatrix[x][y];
 }
 
 void Graph::setNumOfVertices(short numOfVertices)
@@ -111,7 +130,7 @@ void Graph::setMaxRange(float maxRange)
     this->m_maxRange = maxRange;
 }
 
-void Graph::setAdjacencyMatrix(short i, short j, float value)
+void Graph::setEdgeValue(short i, short j, float value)
 {
     this->m_adjacencyMatrix[i][j] = value;
     this->m_adjacencyMatrix[j][i] = value;

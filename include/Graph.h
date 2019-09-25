@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <iostream>
 #include <vector>
+#include <time.h>
+#include <cmath>
 
 class Graph
 {
@@ -12,6 +14,10 @@ class Graph
 
         void generate();
         void printGraph();
+        bool adjacent(short x, short y);
+        std::vector<short> neighbors(short x);
+        void addEdge(short x, short y);
+        void deleteEdge(short x, short y);
 
         // getters
         short getNumOfVertices();
@@ -19,7 +25,8 @@ class Graph
         float getDensity();
         float getMinRange();
         float getMaxRange();
-        float getAdjacencyMatrix(short i, short j);
+        short getNodeValue(short x);
+        float getEdgeValue(short x, short y);
 
         // setters
         void setNumOfVertices(short numOfVertices);
@@ -27,14 +34,15 @@ class Graph
         void setDensity(float density);
         void setMinRange(float minRange);
         void setMaxRange(float maxRange);
-        void setAdjacencyMatrix(short i, short j, float value);
+        void setNodeValue(short x, short a);
+        void setEdgeValue(short x, short y, float v);
 
     private:
-        short m_numOfVertices;             // the total number of vertices in the graph
-        short m_numOfEdges;                // the total number of edges in the graph
-        float m_density;                   // the desired density of the graph
-        float m_minRange;                  // the lower end of the distance range
-        float m_maxRange;                  // the higher end of the distance range
+        short m_numOfVertices;                                  // the total number of vertices in the graph
+        short m_numOfEdges;                                     // the total number of edges in the graph
+        float m_density;                                        // the desired density of the graph
+        float m_minRange;                                       // the lower end of the distance range
+        float m_maxRange;                                       // the higher end of the distance range
         std::vector<std::vector<float>> m_adjacencyMatrix;      // the adjacency matrix
 };
 
