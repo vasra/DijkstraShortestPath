@@ -13,54 +13,67 @@ Graph::~Graph(){}
 void Graph::generate()
 {
     float randomValue = 0.0f;
-    float weight = 0.0f;
     float currentDensity = 0.0f;
 
-    srand(static_cast<float>(time(NULL)));
-    for(short i = 0; i < getNumOfVertices(); i++)
-    {
-        for(short j = i + 1; j < getNumOfVertices(); j++)
-        {
-            randomValue = static_cast<float>(rand()) / (static_cast<float>(RAND_MAX) + 1.0f);
+    srand( static_cast<float>( time( NULL ) ) );
 
-            if(randomValue < getDensity())
+    while(currentDensity < Getm_density())
+    {
+        for( short i = 0; i < Getm_numOfVertices(); i++ )
+        {
+            for( short j = i + 1; j < Getm_numOfVertices(); j++ )
             {
-                weight = static_cast<float>(rand()) / (static_cast<float>(RAND_MAX)) * 10.0f + 1.0f;
-                setEdgeValue(i, j, weight);
-                setNumOfEdges(getNumOfEdges() + 1);
-                currentDensity = (2 * getNumOfEdges()) / (getNumOfVertices() * (getNumOfVertices() - 1));
-                if( currentDensity >= getDensity() )
-                    return;
+                if(Getm_edgeValue(i, j) == 0)
+                {
+                    randomValue = static_cast<float>( rand() ) / (static_cast<float>( RAND_MAX ) + 1.0f);
+
+                    if( randomValue < Getm_density() )
+                    {
+                        addEdge( i, j );
+
+                        currentDensity = ( 2.0f * Getm_numOfEdges() ) / ( Getm_numOfVertices() * ( Getm_numOfVertices() - 1.0f ) );
+
+                        if( currentDensity >= Getm_density() )
+                            return;
+                    }
+                }
             }
         }
     }
 }
 
-void Graph::printGraph()
+void Graph::printConnectivityMatrix()
 {
     cout << "[";
-    for(short i = 0; i < getNumOfVertices(); i++)
+    for(short i = 0; i < Getm_numOfVertices(); i++)
     {
         cout << ( i == 0? " [":"  [");
-        for(short j = 0; j < getNumOfVertices(); j++)
+        for(short j = 0; j < Getm_numOfVertices(); j++)
         {
-            if(j == (getNumOfVertices() - 1))
-                cout << getEdgeValue(i, j) << ((i == (getNumOfVertices() - 1))?" ] ]":" ],") << endl;
+            if(j == (Getm_numOfVertices() - 1))
+                cout << Getm_edgeValue(i, j) << ((i == (Getm_numOfVertices() - 1))? " ] ]":" ],") << endl;
             else
-                cout << getEdgeValue(i, j) << ", ";
+                cout << Getm_edgeValue(i, j) << ", ";
         }
     }
+    cout << endl;
+    cout << "------------" << endl;
+    cout << "Graph stats:" << endl;
+    cout << "------------" << endl;
+    cout << "Vertices   : " << Getm_numOfVertices() << endl;
+    cout << "Edges      : " << Getm_numOfEdges() << endl;
+    cout << "Density    : " << Getm_density() << endl;
 }
 
 bool Graph::adjacent(short x, short y)
 {
-    return getEdgeValue(x, y) > 0.0f;
+    return Getm_edgeValue(x, y) > 0.0f;
 }
 
 std::vector<short> Graph::neighbors(short x)
 {
     std::vector<short> neighbors;
-    for(short i = 0; i < getNumOfVertices(); i++)
+    for(short i = 0; i < Getm_numOfVertices(); i++)
     {
         if( adjacent(x, i) )
             neighbors.push_back(i);
@@ -70,68 +83,87 @@ std::vector<short> Graph::neighbors(short x)
 
 void Graph::addEdge(short x, short y)
 {
-    srand(static_cast<float>(time(NULL)));
-    float weight = static_cast<float>(rand()) / (static_cast<float>(RAND_MAX)) * 10.0f + 1.0f;
-    setEdgeValue(x, y, weight);
+    float weight = (static_cast<float>(rand()) / (static_cast<float>(RAND_MAX))) * 10.0f + 1.0f;
+    if( weight > 10.0f )
+        weight = 10.0f;
+    Setm_edgeValue(x, y, weight);
+    Setm_numOfEdges( Getm_numOfEdges() + 1 );
 }
 
-short Graph::getNumOfVertices()
+void Graph::deleteEdge(short x, short y)
 {
-    return this->m_numOfVertices;
+    Setm_edgeValue( x, y, 0.0f );
+    Setm_numOfEdges( Getm_numOfEdges() - 1 );
 }
 
-short Graph::getNumOfEdges()
+short Graph::Getm_numOfVertices()
 {
-    return this->m_numOfEdges;
+    return m_numOfVertices;
 }
 
-float Graph::getDensity()
+short Graph::Getm_numOfEdges()
 {
-    return this->m_density;
+    return m_numOfEdges;
 }
 
-float Graph::getMinRange()
+float Graph::Getm_density()
 {
-    return this->m_minRange;
+    return m_density;
 }
 
-float Graph::getMaxRange()
+float Graph::Getm_minRange()
 {
-    return this->m_maxRange;
+    return m_minRange;
 }
 
-float Graph::getEdgeValue(short x, short y)
+float Graph::Getm_maxRange()
 {
-    return this->m_adjacencyMatrix[x][y];
+    return m_maxRange;
 }
 
-void Graph::setNumOfVertices(short numOfVertices)
+short Graph::Getm_nodeValue(short x)
 {
-    this->m_numOfVertices = numOfVertices;
+    short value = 0;
+    for(short y = 0; y < Getm_numOfVertices(); y++)
+    {
+        if( adjacent( x, y ) )
+            value++;
+    }
+    return value;
 }
 
-void Graph::setNumOfEdges(short numOfEdges)
+float Graph::Getm_edgeValue(short x, short y)
 {
-    this->m_numOfEdges = numOfEdges;
+    return m_adjacencyMatrix[x][y];
 }
 
-void Graph::setDensity(float density)
+void Graph::Setm_numOfVertices(short numOfVertices)
 {
-    this->m_density = density;
+    m_numOfVertices = numOfVertices;
 }
 
-void Graph::setMinRange(float minRange)
+void Graph::Setm_numOfEdges(short numOfEdges)
 {
-    this->m_minRange = minRange;
+    m_numOfEdges = numOfEdges;
 }
 
-void Graph::setMaxRange(float maxRange)
+void Graph::Setm_density(float density)
 {
-    this->m_maxRange = maxRange;
+    m_density = density;
 }
 
-void Graph::setEdgeValue(short i, short j, float value)
+void Graph::Setm_minRange(float minRange)
 {
-    this->m_adjacencyMatrix[i][j] = value;
-    this->m_adjacencyMatrix[j][i] = value;
+    m_minRange = minRange;
+}
+
+void Graph::Setm_maxRange(float maxRange)
+{
+    m_maxRange = maxRange;
+}
+
+void Graph::Setm_edgeValue(short i, short j, float value)
+{
+    m_adjacencyMatrix[i][j] = value;
+    m_adjacencyMatrix[j][i] = value;
 }

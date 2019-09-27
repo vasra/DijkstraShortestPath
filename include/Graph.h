@@ -13,29 +13,29 @@ class Graph
         virtual ~Graph();
 
         void generate();
-        void printGraph();
+        void printConnectivityMatrix();
         bool adjacent(short x, short y);
         std::vector<short> neighbors(short x);
         void addEdge(short x, short y);
         void deleteEdge(short x, short y);
 
-        // getters
-        short getNumOfVertices();
-        short getNumOfEdges();
-        float getDensity();
-        float getMinRange();
-        float getMaxRange();
-        short getNodeValue(short x);
-        float getEdgeValue(short x, short y);
+        // Getm_ters
+        short Getm_numOfVertices();
+        short Getm_numOfEdges();
+        float Getm_density();
+        float Getm_minRange();
+        float Getm_maxRange();
+        short Getm_nodeValue(short x);
+        float Getm_edgeValue(short x, short y);
 
-        // setters
-        void setNumOfVertices(short numOfVertices);
-        void setNumOfEdges(short numOfEdges);
-        void setDensity(float density);
-        void setMinRange(float minRange);
-        void setMaxRange(float maxRange);
-        void setNodeValue(short x, short a);
-        void setEdgeValue(short x, short y, float v);
+        // Setm_ters
+        void Setm_numOfVertices(short numOfVertices);
+        void Setm_numOfEdges(short numOfEdges);
+        void Setm_density(float density);
+        void Setm_minRange(float minRange);
+        void Setm_maxRange(float maxRange);
+        void Setm_nodeValue(short x, short a);
+        void Setm_edgeValue(short x, short y, float v);
 
     private:
         short m_numOfVertices;                                  // the total number of vertices in the graph
