@@ -2,20 +2,9 @@
 #define PRIORITYQUEUE_H
 #include <vector>
 
-typedef struct m_node node;
-
 class PriorityQueue
 {
-
     private:
-
-
-        node* m_head;
-
-    public:
-        PriorityQueue();
-        virtual ~PriorityQueue();
-
         typedef struct m_node
         {
             short priority;
@@ -23,15 +12,20 @@ class PriorityQueue
             m_node *next;
             m_node *previous;
         }node;
+        node* m_head;
+        short m_size;
+
+    public:
+        PriorityQueue();
+        virtual ~PriorityQueue();
 
         void chgPriority(node* node, short priority);
-        void insertNode(node*);
-        node* minPriority();
+        void insertNode(node* new_node);
+        void setm_head(node* head);
+        node* getm_head();
         node* top();
         bool contains(node*);
-        short sizeOfQueue();
-
-
+        short getm_sizeOfQueue();
 };
 
 #endif // PRIORITYQUEUE_H
