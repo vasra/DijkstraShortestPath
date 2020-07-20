@@ -1,11 +1,11 @@
 #include "Graph.h"
-#include "PriorityQueue.h"
+
+using namespace std;
 
 int main()
 {
     Graph *g = new Graph(10, 0.4f, 1.0f, 10.0f);
-    g->generateGraph();
-    g->printAdjacencyMatrix();
-
+    g->generate();
+    g->printConnectivityMatrix();
     return 0;
 }

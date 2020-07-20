@@ -1,25 +1,16 @@
 #ifndef VERTEX_H
 #define VERTEX_H
-
 #include <vector>
 
 class Vertex
 {
     public:
-        Vertex(short name, short value);
+        Vertex(short name);
         virtual ~Vertex();
 
-        unsigned short getName();
-        unsigned short getValue();
-        std::vector<Vertex*> getAdjacencyList();
-        void setName(unsigned short val);
-        void setValue(unsigned short val);
-        void setAdjacencyList(Vertex* v);
-
     private:
-        unsigned short m_name;
-        unsigned short m_value;
-        std::vector<Vertex*> m_adjacencyList;
+        short m_name;                           // The name of the vertex.  It will be a number, e.g. 1, 2, 3 etc.
+        std::vector<Vertex> m_adjacencyList;    // A vector containing the neighbouring vertices
 };
 
 #endif // VERTEX_H
