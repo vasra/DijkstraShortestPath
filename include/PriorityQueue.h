@@ -9,8 +9,7 @@ class PriorityQueue
 
     private:
 
-
-        node* m_head;
+    const node& m_head;
 
     public:
         PriorityQueue();
@@ -27,7 +26,7 @@ class PriorityQueue
         void chgPriority(node* node, short priority);
         void insertNode(node*);
         node* minPriority();
-        node* top();
+        const node& top();
         bool contains(node*);
         short sizeOfQueue();
 

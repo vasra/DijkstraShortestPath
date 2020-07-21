@@ -24,7 +24,7 @@ void PriorityQueue::chgPriority(node* Node, short priority)
     }
 }
 
-node* PriorityQueue::top()
+const node& PriorityQueue::top()
 {
     return m_head;
 }
