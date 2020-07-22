@@ -1,11 +1,11 @@
 #include "Graph.h"
 
-Graph::Graph(short numOfVertices, float density, int minRange, int maxRange): m_numOfVertices(numOfVertices),
-                                                                              m_numOfEdges(0),
-                                                                              m_density(density),
-                                                                              m_minRange(minRange),
-                                                                              m_maxRange(maxRange) {
-                                                                                  /*m_adjacencyMatrix(m_numOfVertices, std::vector<float>(m_numOfVertices, 0))*/
+Graph::Graph(short numOfVertices, float density, int minRange, int maxRange): numOfVertices(numOfVertices),
+                                                                              numOfEdges(0),
+                                                                              density(density),
+                                                                              minRange(minRange),
+                                                                              maxRange(maxRange)
+{
     generate();
 }
 
@@ -15,159 +15,143 @@ void Graph::generate()
 {
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_real_distribution<> dist(0.0f, 1.0f);
-    float randomValue = 0.0f;
+    std::uniform_real_distribution<> probability(0.0f, 1.0f);
+    std::uniform_int_distribution<>  distVertices(0, GetNumOfVertices() - 1);
+    float randomProbability = 0.0f;
     float currentDensity = 0.0f;
+    unsigned short randomVertex;
+    unsigned short verticesCount = 0;
 
-    while(currentDensity < Getm_density())
+    while( verticesCount < GetNumOfVertices() )
+        vertices.emplace_back(std::make_unique<Vertex>(verticesCount++));
+
+    while(currentDensity < GetDensity() )
     {
-        for( short i = 0; i < Getm_numOfVertices(); i++ )
+        for( auto& v : vertices )
         {
-            for( short j = i + 1; j < Getm_numOfVertices(); j++ )
+            // Randomly pick a vertex to become a neighbour
+            do {
+                randomVertex = static_cast<short>(distVertices(gen));
+            } while (randomVertex == v->getName());
+
+            if ( std::find_if(v->getAdjacencyList().begin(), v->getAdjacencyList().end(), [&randomVertex](std::pair<short, int> p) {
+                    return p.first == randomVertex;
+                } ) == v->getAdjacencyList().end() )
             {
-                if(Getm_edgeValue(i, j) == 0)
+                // If the generated probability is smaller than the graph density, then proceed with making the two vertices neighbours
+                randomProbability = static_cast<float>(probability(gen));
+                if(randomProbability < GetDensity() )
                 {
-                    randomValue = static_cast<float>(dist(gen));
-                    if( randomValue < Getm_density() )
-                    {
-                        addEdge( i, j );
+                    addEdge( *v, randomVertex );
 
-                        currentDensity = ( 2.0f * Getm_numOfEdges() ) / ( Getm_numOfVertices() * ( Getm_numOfVertices() - 1 ) );
+                    currentDensity = ( 2.0f * static_cast<float>(GetNumOfEdges()) ) / (static_cast<float>(GetNumOfVertices()) * (static_cast<float>(GetNumOfVertices()) - 1.0f ) );
 
-                        if( currentDensity >= Getm_density() )
-                            return;
-                    }
+                    if( currentDensity >= GetDensity() )
+                        return;
                 }
             }
         }
     }
 }
 
-void Graph::printConnectivityMatrix()
+void Graph::printGraph()
 {
-    std::cout << "[";
-    for(short i = 0; i < Getm_numOfVertices(); i++)
+    std::string s;
+    std::cout << "The adjacency list of each vertex can be found below:" << std::endl;
+    for (auto& v : vertices)
     {
-        std::cout << ( i == 0? " [":"  [");
-        for(short j = 0; j < Getm_numOfVertices(); j++)
+        std::cout << v->getName() << ": ";
+        for( auto neighbour = v->getAdjacencyList().begin(); neighbour != v->getAdjacencyList().end(); neighbour++)
         {
-            if(j == (Getm_numOfVertices() - 1))
-                std::cout << Getm_edgeValue(i, j) << ((i == (Getm_numOfVertices() - 1))? " ] ]":" ],") << std::endl;
-            else
-                std::cout << Getm_edgeValue(i, j) << ", ";
+            s.append( std::to_string((*neighbour).first ) );
+            s.append(" -> ");
         }
+        s.erase(s.size() - 3);
+        std::cout << s << std::endl;
+        s.clear();
     }
     std::cout << std::endl;
     std::cout << "------------" << std::endl;
     std::cout << "Graph stats:" << std::endl;
     std::cout << "------------" << std::endl;
-    std::cout << "Vertices   : " << Getm_numOfVertices() << std::endl;
-    std::cout << "Edges      : " << Getm_numOfEdges() << std::endl;
-    std::cout << "Density    : " << Getm_density() << std::endl;
+    std::cout << "Vertices   : " << GetNumOfVertices() << std::endl;
+    std::cout << "Edges      : " << GetNumOfEdges() << std::endl;
+    std::cout << "Density    : " << GetDensity() << std::endl;
 }
 
-bool Graph::adjacent(short x, short y)
-{
-    return Getm_edgeValue(x, y) > 0.0f;
-}
-
-std::vector<short> Graph::neighbors(short x)
-{
-    std::vector<short> neighbors;
-    for(short i = 0; i < Getm_numOfVertices(); i++)
-    {
-        if( adjacent(x, i) )
-            neighbors.push_back(i);
-    }
-    return neighbors;
-}
-
-void Graph::addEdge(Vertex& x, Vertex& y)
+void Graph::addEdge(Vertex& x, unsigned short neighbour)
 {
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_int_distribution<> dist(1, 10);
+    std::uniform_int_distribution<> dist(GetMinRange(), GetMaxRange());
     int weight = dist(gen);
 
-    Setm_edgeValue(x, y, weight);
-    Setm_numOfEdges( Getm_numOfEdges() + 1 );
+    SetEdgeValue( x, neighbour, weight );
+    SetNumOfEdges( GetNumOfEdges() + 1 );
 }
 
-void Graph::deleteEdge(short x, short y)
+void Graph::deleteEdge(Vertex& x, unsigned short neighbour)
 {
-    Setm_edgeValue( x, y, 0.0f );
-    Setm_numOfEdges( Getm_numOfEdges() - 1 );
+    SetEdgeValue( x, neighbour, 0 );
+    SetNumOfEdges( GetNumOfEdges() - 1 );
 }
 
-short Graph::Getm_numOfVertices()
+short Graph::GetNumOfVertices()
 {
-    return m_numOfVertices;
+    return numOfVertices;
 }
 
-short Graph::Getm_numOfEdges()
+short Graph::GetNumOfEdges()
 {
-    return m_numOfEdges;
+    return numOfEdges;
 }
 
-float Graph::Getm_density()
+float Graph::GetDensity()
 {
-    return m_density;
+    return density;
 }
 
-int Graph::Getm_minRange()
+int Graph::GetMinRange()
 {
-    return m_minRange;
+    return minRange;
 }
 
-int Graph::Getm_maxRange()
+int Graph::GetMaxRange()
 {
-    return m_maxRange;
+    return maxRange;
 }
 
-short Graph::Getm_nodeValue(short x)
+void Graph::SetNumOfVertices(short numOfVertices)
 {
-    short value = 0;
-    for(short y = 0; y < Getm_numOfVertices(); y++)
-    {
-        if( adjacent( x, y ) )
-            value++;
-    }
-    return value;
+    this->numOfVertices = numOfVertices;
 }
 
-int Graph::Getm_edgeValue(Vertex x, Vertex y)
+void Graph::SetNumOfEdges(short numOfEdges)
 {
-    return m_adjacencyMatrix[x][y];
+    this->numOfEdges = numOfEdges;
 }
 
-void Graph::Setm_numOfVertices(short numOfVertices)
+void Graph::SetDensity(float density)
 {
-    m_numOfVertices = numOfVertices;
+    this->density = density;
 }
 
-void Graph::Setm_numOfEdges(short numOfEdges)
+void Graph::SetMinRange(int minRange)
 {
-    m_numOfEdges = numOfEdges;
+    this->minRange = minRange;
 }
 
-void Graph::Setm_density(float density)
+void Graph::SetMaxRange(int maxRange)
 {
-    m_density = density;
+    this->maxRange = maxRange;
 }
 
-void Graph::Setm_minRange(int minRange)
+void Graph::SetEdgeValue(Vertex& x, unsigned short neighbour, int weight)
 {
-    m_minRange = minRange;
-}
+    x.getAdjacencyList().emplace_front(neighbour, weight);
+    std::vector< std::unique_ptr<Vertex> >::iterator it = std::find_if(vertices.begin(), vertices.end(), [&neighbour](std::unique_ptr<Vertex>& v) {
+            return v->getName() == neighbour;
+        });
 
-void Graph::Setm_maxRange(int maxRange)
-{
-    m_maxRange = maxRange;
-}
-
-void Graph::Setm_edgeValue(Vertex& x, Vertex& y, int weight)
-{
-    x.getAdjacencyList().emplace_front(std::make_pair<y, weight>);
-    //m_adjacencyMatrix[i][j] = value;
-    //m_adjacencyMatrix[j][i] = value;
+    (*it)->getAdjacencyList().emplace_front(x.getName(), weight);
 }

@@ -5,6 +5,6 @@ using namespace std;
 int main()
 {
     Graph g{ 10, 0.8f, 1, 10 };
-    g.printConnectivityMatrix();
+    g.printGraph();
     return 0;
 }
