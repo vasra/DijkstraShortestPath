@@ -57,10 +57,14 @@ void Graph::generate()
 void Graph::printGraph()
 {
     std::string s;
-    std::cout << "The adjacency list of each vertex can be found below:" << std::endl;
+    std::cout << "-----------------------------------------------------" << std::endl;
+    std::cout << "                        GRAPH                        " << std::endl;
+    std::cout << "-----------------------------------------------------" << std::endl;
+    std::cout << "Vertex | Adjacency List" << std::endl;
+    std::cout << "-----------------------------------------------------" << std::endl;
     for (auto& v : vertices)
     {
-        std::cout << v->getName() << ": ";
+        std::cout << v->getName() << "      | ";
         for( auto neighbour = v->getAdjacencyList().begin(); neighbour != v->getAdjacencyList().end(); neighbour++)
         {
             s.append( std::to_string((*neighbour).first ) );
