@@ -1,31 +1,31 @@
 #include "Graph.h"
 
-Graph::Graph(short numOfVertices, float density, int minRange, int maxRange): numOfVertices(numOfVertices),
-                                                                              numOfEdges(0),
-                                                                              density(density),
-                                                                              minRange(minRange),
-                                                                              maxRange(maxRange)
+Graph::Graph(unsigned short numOfVertices, float density, int minRange, int maxRange): numOfVertices(numOfVertices),
+                                                                                       numOfEdges(0),
+                                                                                       density(density),
+                                                                                       minRange(minRange),
+                                                                                       maxRange(maxRange)
 {
-    generate();
+    generate(density, minRange, maxRange);
 }
 
 Graph::~Graph(){}
 
-void Graph::generate()
+void Graph::generate(float density, int minRange, int maxRange)
 {
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_real_distribution<> probability(0.0f, 1.0f);
-    std::uniform_int_distribution<>  distVertices(0, GetNumOfVertices() - 1);
+    std::uniform_int_distribution<>  distVertices(0, numOfVertices - 1);
     float randomProbability = 0.0f;
     float currentDensity = 0.0f;
     unsigned short randomVertex;
     unsigned short verticesCount = 0;
 
-    while( verticesCount < GetNumOfVertices() )
-        vertices.emplace_back(std::make_unique<Vertex>(verticesCount++));
+    while( verticesCount < numOfVertices )
+        vertices.emplace_back(std::make_shared<Vertex>(verticesCount++));
 
-    while(currentDensity < GetDensity() )
+    while(currentDensity < density )
     {
         for( auto& v : vertices )
         {
@@ -40,13 +40,13 @@ void Graph::generate()
             {
                 // If the generated probability is smaller than the graph density, then proceed with making the two vertices neighbours
                 randomProbability = static_cast<float>(probability(gen));
-                if(randomProbability < GetDensity() )
+                if(randomProbability < density )
                 {
-                    addEdge( *v, randomVertex );
+                    addEdge( *v, randomVertex, minRange, maxRange);
 
-                    currentDensity = ( 2.0f * static_cast<float>(GetNumOfEdges()) ) / (static_cast<float>(GetNumOfVertices()) * (static_cast<float>(GetNumOfVertices()) - 1.0f ) );
+                    currentDensity = ( 2.0f * static_cast<float>(numOfEdges) ) / (static_cast<float>(numOfVertices) * (static_cast<float>(numOfVertices) - 1.0f ) );
 
-                    if( currentDensity >= GetDensity() )
+                    if( currentDensity >= density )
                         return;
                 }
             }
@@ -83,21 +83,21 @@ void Graph::printGraph()
     std::cout << "Density    : " << GetDensity() << std::endl;
 }
 
-void Graph::addEdge(Vertex& x, unsigned short neighbour)
+void Graph::addEdge(Vertex& x, unsigned short neighbour, int minRange, int maxRange)
 {
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_int_distribution<> dist(GetMinRange(), GetMaxRange());
+    std::uniform_int_distribution<> dist(minRange, maxRange);
     int weight = dist(gen);
 
     SetEdgeValue( x, neighbour, weight );
-    SetNumOfEdges( GetNumOfEdges() + 1 );
+    SetNumOfEdges(numOfEdges + 1 );
 }
 
 void Graph::deleteEdge(Vertex& x, unsigned short neighbour)
 {
     SetEdgeValue( x, neighbour, 0 );
-    SetNumOfEdges( GetNumOfEdges() - 1 );
+    SetNumOfEdges(numOfEdges - 1 );
 }
 
 short Graph::GetNumOfVertices()
@@ -125,12 +125,12 @@ int Graph::GetMaxRange()
     return maxRange;
 }
 
-void Graph::SetNumOfVertices(short numOfVertices)
+void Graph::SetNumOfVertices(unsigned short numOfVertices)
 {
     this->numOfVertices = numOfVertices;
 }
 
-void Graph::SetNumOfEdges(short numOfEdges)
+void Graph::SetNumOfEdges(unsigned short numOfEdges)
 {
     this->numOfEdges = numOfEdges;
 }
@@ -153,9 +153,14 @@ void Graph::SetMaxRange(int maxRange)
 void Graph::SetEdgeValue(Vertex& x, unsigned short neighbour, int weight)
 {
     x.getAdjacencyList().emplace_front(neighbour, weight);
-    std::vector< std::unique_ptr<Vertex> >::iterator it = std::find_if(vertices.begin(), vertices.end(), [&neighbour](std::unique_ptr<Vertex>& v) {
+    std::vector< std::shared_ptr<Vertex> >::iterator it = std::find_if(vertices.begin(), vertices.end(), [&neighbour](std::shared_ptr<Vertex>& v) {
             return v->getName() == neighbour;
         });
 
     (*it)->getAdjacencyList().emplace_front(x.getName(), weight);
+}
+
+std::vector<std::shared_ptr<Vertex>>& Graph::getVertices()
+{
+    return vertices;
 }

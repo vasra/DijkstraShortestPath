@@ -1,30 +1,12 @@
 #include "PriorityQueue.h"
 
-PriorityQueue::PriorityQueue()
+PriorityQueue::PriorityQueue(Graph& g)
 {
-    //ctor
+    for( auto& vertex : g.getVertices() )
+        nodes.emplace_front(std::make_unique<node>(vertex));
 }
 
 PriorityQueue::~PriorityQueue()
 {
     //dtor
-}
-
-void PriorityQueue::chgPriority(node* Node, short priority)
-{
-    Node->priority = priority;
-    (Node->previous)->next = Node->next;
-    (Node->next)->previous = Node->previous;
-    Node->next = Node->previous = nullptr;
-
-
-    for( node* iterator_node = top(); iterator_node->next != nullptr; iterator_node->next = (iterator_node->next)->next)
-    {
-
-    }
-}
-
-const node& PriorityQueue::top()
-{
-    return head;
 }

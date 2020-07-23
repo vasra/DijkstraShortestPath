@@ -1,35 +1,22 @@
 #ifndef PRIORITYQUEUE_H
 #define PRIORITYQUEUE_H
-#include <vector>
-
-typedef struct node node;
+#include <list>
+#include "Vertex.h"
+#include "Graph.h"
 
 class PriorityQueue
 {
-
     private:
-
-    const node& head;
-
+        struct node {
+            node(std::shared_ptr<Vertex>& vertex) {
+                std::shared_ptr<Vertex> v = vertex;
+                unsigned int weight = INT_MAX;
+            }
+        };
+        std::list<std::unique_ptr<node>> nodes;
     public:
-        PriorityQueue();
+        PriorityQueue(Graph& g);
         virtual ~PriorityQueue();
-
-        typedef struct node
-        {
-            short priority;
-            short vertex;
-            node *next;
-            node *previous;
-        }node;
-
-        void chgPriority(node* node, short priority);
-        void insertNode(node*);
-        node* minPriority();
-        const node& top();
-        bool contains(node*);
-        short sizeOfQueue();
-
 
 };
 

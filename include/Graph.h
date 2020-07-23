@@ -12,12 +12,12 @@
 class Graph
 {
     public:
-        Graph(short numOfVertices, float density, int minRange, int maxRange);
+        Graph(unsigned short numOfVertices, float density, int minRange, int maxRange);
         virtual ~Graph();
 
-        void generate();
+        void generate(float density, int minRange, int maxRange);
         void printGraph();
-        void addEdge(Vertex& x, unsigned short neighbour);
+        void addEdge(Vertex& x, unsigned short neighbour, int minRange, int maxRange);
         void deleteEdge(Vertex& x, unsigned short neighbour);
 
         // Getters
@@ -26,23 +26,23 @@ class Graph
         float GetDensity();
         int GetMinRange();
         int GetMaxRange();
+        std::vector<std::shared_ptr<Vertex>>& getVertices();
 
         // Setters
-        void SetNumOfVertices(short numOfVertices);
-        void SetNumOfEdges(short numOfEdges);
+        void SetNumOfVertices(unsigned  short numOfVertices);
+        void SetNumOfEdges(unsigned  short numOfEdges);
         void SetDensity(float density);
         void SetMinRange(int minRange);
         void SetMaxRange(int maxRange);
-        //void SetNodeValue(Vertex& x, Vertex& a);
         void SetEdgeValue(Vertex& x, unsigned short neighbour, int weight);
 
     private:
-        short numOfVertices;                                // the total number of vertices in the graph
-        short numOfEdges;                                   // the total number of edges in the graph
+        unsigned short numOfVertices;                       // the total number of vertices in the graph
+        unsigned short numOfEdges;                          // the total number of edges in the graph
         float density;                                      // the desired density of the graph
         int   minRange;                                     // the lower end of the distance range
         int   maxRange;                                     // the higher end of the distance range
-        std::vector<std::unique_ptr<Vertex>> vertices;      // the vertices of the graph
+        std::vector<std::shared_ptr<Vertex>> vertices;      // the vertices of the graph
 };
 
 #endif // GRAPH_H
