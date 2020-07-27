@@ -1,5 +1,6 @@
 #ifndef PRIORITYQUEUE_H
 #define PRIORITYQUEUE_H
+#include <queue>
 #include "Vertex.h"
 #include "Graph.h"
 
@@ -9,35 +10,48 @@ class PriorityQueue
         struct node
         {
             std::shared_ptr<Vertex> vertex;
-            unsigned int weight;
+            unsigned int distance = 0;
 
-            node(std::shared_ptr<Vertex>& v, int w = INT_MAX)
+            node(std::shared_ptr<Vertex>& v, unsigned int w = INT_MAX)
             {
-                std::shared_ptr<Vertex> vertex = v;
-                unsigned int weight = w;
+                vertex = std::make_shared<Vertex>(*v);
+                distance = w;
             }
-            bool operator<(node& n)
+            bool operator<(std::shared_ptr<const node>& n)
             {
-                return weight < n.weight;
+                return this->distance < n->distance;
             }
-         
+            bool operator>(std::shared_ptr<node> n)
+            {
+                return this->distance > n->distance;
+            }
+            bool operator>=(std::shared_ptr<node> n)
+            {
+                return this->distance >= n->distance;
+            }
+            bool operator<=(std::shared_ptr<node> n)
+            {
+                return this->distance <= n->distance;
+            }
+            bool operator==(std::shared_ptr<node> n)
+            {
+                return this->distance == n->distance;
+            }
         };
-        std::vector<std::shared_ptr<node>> nodes;
+  
+        struct compare
+        {
+            bool operator()(std::shared_ptr<const node>& a, std::shared_ptr<const node>& b)
+            {
+                return a->distance > b->distance;
+            }
+        };
+        std::priority_queue< std::shared_ptr<const node>, std::vector<std::shared_ptr<const node>>, compare > nodes;
 
     public:
         PriorityQueue(Graph& g);
         virtual ~PriorityQueue();
 
-        std::shared_ptr<node>& top();
-        int left(int i);
-        int right(int i);
-        int parent(int i);
-        int min_child(int i);
-        void insert(std::shared_ptr<node>& ptr);
-        void delete_min();
-        void percolate_up(int i);
-        void percolate_down(int i);
-        void swap(int a, int b);
+        void printQueue();
 };
-
-#endif // PRIORITYQUEUE_H
+#endif

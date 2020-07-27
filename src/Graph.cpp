@@ -1,6 +1,6 @@
 #include "Graph.h"
 
-Graph::Graph(unsigned short numOfVertices, float density, int minRange, int maxRange): numOfVertices(numOfVertices),
+Graph::Graph(unsigned short numOfVertices, float density, unsigned int minRange, unsigned int maxRange): numOfVertices(numOfVertices),
                                                                                        numOfEdges(0),
                                                                                        density(density),
                                                                                        minRange(minRange),
@@ -11,7 +11,7 @@ Graph::Graph(unsigned short numOfVertices, float density, int minRange, int maxR
 
 Graph::~Graph(){}
 
-void Graph::generate(float density, int minRange, int maxRange)
+void Graph::generate(float density, unsigned int minRange, unsigned int maxRange)
 {
     std::random_device rd;
     std::mt19937 gen(rd());
@@ -34,7 +34,7 @@ void Graph::generate(float density, int minRange, int maxRange)
                 randomVertex = static_cast<short>(distVertices(gen));
             } while (randomVertex == v->getName());
 
-            if ( std::find_if(v->getAdjacencyList().begin(), v->getAdjacencyList().end(), [&randomVertex](std::pair<short, int> p) {
+            if ( std::find_if(v->getAdjacencyList().begin(), v->getAdjacencyList().end(), [&randomVertex](std::pair<short, unsigned int> p) {
                     return p.first == randomVertex;
                 } ) == v->getAdjacencyList().end() )
             {
@@ -83,12 +83,12 @@ void Graph::printGraph()
     std::cout << "Density    : " << GetDensity() << std::endl;
 }
 
-void Graph::addEdge(Vertex& x, unsigned short neighbour, int minRange, int maxRange)
+void Graph::addEdge(Vertex& x, unsigned short neighbour, unsigned int minRange, unsigned int maxRange)
 {
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> dist(minRange, maxRange);
-    int weight = dist(gen);
+    unsigned int weight = dist(gen);
 
     SetEdgeValue( x, neighbour, weight );
     SetNumOfEdges(numOfEdges + 1 );
@@ -115,12 +115,12 @@ float Graph::GetDensity()
     return density;
 }
 
-int Graph::GetMinRange()
+unsigned int Graph::GetMinRange()
 {
     return minRange;
 }
 
-int Graph::GetMaxRange()
+unsigned int Graph::GetMaxRange()
 {
     return maxRange;
 }
@@ -140,17 +140,17 @@ void Graph::SetDensity(float density)
     this->density = density;
 }
 
-void Graph::SetMinRange(int minRange)
+void Graph::SetMinRange(unsigned int minRange)
 {
     this->minRange = minRange;
 }
 
-void Graph::SetMaxRange(int maxRange)
+void Graph::SetMaxRange(unsigned int maxRange)
 {
     this->maxRange = maxRange;
 }
 
-void Graph::SetEdgeValue(Vertex& x, unsigned short neighbour, int weight)
+void Graph::SetEdgeValue(Vertex& x, unsigned short neighbour, unsigned int weight)
 {
     x.getAdjacencyList().emplace_front(neighbour, weight);
     std::vector< std::shared_ptr<Vertex> >::iterator it = std::find_if(vertices.begin(), vertices.end(), [&neighbour](std::shared_ptr<Vertex>& v) {
