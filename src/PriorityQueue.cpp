@@ -1,14 +1,15 @@
 #include "PriorityQueue.h"
 
-PriorityQueue::PriorityQueue(Graph& g)
+PriorityQueue::PriorityQueue(/*Graph& g*/)
 {
-    for (auto& vertex : g.getVertices())
-        nodes.emplace(std::make_shared<node>(vertex));
+    /*for (auto& vertex : g.getVertices() )
+        nodes.emplace(std::make_shared<node>(vertex));*/
 }
 
 PriorityQueue::~PriorityQueue()
 {
-    //dtor
+    while (!nodes.empty())
+        nodes.pop();
 }
 
 void PriorityQueue::printQueue()
@@ -19,4 +20,9 @@ void PriorityQueue::printQueue()
         std::cout << nodes.top()->vertex->getName() << " | " << nodes.top()->distance << std::endl;
         nodes.pop();
     }
+}
+
+void PriorityQueue::addToQueue(std::shared_ptr<Vertex>& v, unsigned int d)
+{
+    nodes.emplace(std::make_shared<node>(v, d));
 }
