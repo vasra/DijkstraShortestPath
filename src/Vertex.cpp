@@ -13,3 +13,8 @@ unsigned short Vertex::getName()
 {
     return name;
 }
+
+void Vertex::setPrevious(std::shared_ptr<Vertex>& prev)
+{
+    this->previous = prev;
+}

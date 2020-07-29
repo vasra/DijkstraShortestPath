@@ -112,13 +112,15 @@ void Graph::deleteEdge(Vertex& x, unsigned short neighbour)
 void Graph::dijkstraShortestPath(unsigned short start, unsigned short destination)
 {
     // Data structures that will be used in the Dikstra algorithm:
-    // unchecked     - A set that will hold pointers to all the vertices that the algorithm ahsn't processed yet
-    // distances     - A map that will hold pointers to all the neighbouring vertices of the current vertex that is being examined,
+    // unchecked     - A set that will hold the names of all the vertices that the algorithm hasn't processed yet
+    // distances     - A map that will hold the names of all the neighbouring vertices of the current vertex that is being examined,
     //                 and their total distance from the starting vertex
+    // path          - A vector that will hold the names of the vertices of the shortest path
     // queue         - The priority queue that will be used by the algorithm
     // currentVertex - Pointer to the vertex that the algorithm is currently visiting. It gets initialized to the starting vertex
-    std::set<std::shared_ptr<Vertex>> unchecked;
-    std::map<std::shared_ptr<Vertex>, unsigned short> distances;
+    std::set<unsigned short> unchecked;
+    std::map<unsigned short, unsigned short> distances;
+    std::vector<unsigned short> path;
     PriorityQueue queue;
     auto currentVertex = *(std::find_if(vertices.begin(), vertices.end(), [&start](std::shared_ptr<Vertex> v) { return v->getName() == start; } ));
 
@@ -128,11 +130,11 @@ void Graph::dijkstraShortestPath(unsigned short start, unsigned short destinatio
         auto it = std::find_if(vertices.begin(), vertices.end(), [&i](std::shared_ptr<Vertex> v) { return v->getName() == i; });
         if (i != start)
         {
-            distances.emplace(*it, INT_MAX);
-            unchecked.insert(*it);
+            distances.emplace((*it)->getName(), INT_MAX);
+            unchecked.insert(i);
         }
         else
-            distances.emplace(*it, 0);
+            distances.emplace((*it)->getName(), 0);
     }
 
     // Keep traversing the graph until there are no more vertices to process
@@ -140,7 +142,28 @@ void Graph::dijkstraShortestPath(unsigned short start, unsigned short destinatio
     {
         for (auto v : currentVertex->getAdjacencyList())
         {
+            if (unchecked.find(v.first) != unchecked.end())
+            {
+                // Find the neighbour v in the distances map...
+                auto neighbour = distances.find(v.first);/*std::find_if(distances.begin(), distances.end(), [&v](std::pair<std::shared_ptr<Vertex>, unsigned short> p) {
+                    return p.first->getName() == v.first;
+                    });*/
 
+                    // ...also find the current vertex in the distances map
+                auto current = distances.find(currentVertex->getName());/*std::find_if(distances.begin(), distances.end(), [&currentVertex](std::pair<std::shared_ptr<Vertex>, unsigned short> p) {
+                    return currentVertex->getName() == p.first->getName();
+                    });*/
+
+                if (v.second + current->second < neighbour->second)
+                {
+                    neighbour->second = v.second + current->second;
+                    auto neighbourPointer = std::find_if(this->getVertices().begin(), this->getVertices().end(), [&neighbour](std::shared_ptr<Vertex> vptr) {
+                        return neighbour->first == vptr->getName();
+                        });
+                    (*neighbourPointer)->setPrevious(currentVertex);
+                }
+            }
+            unchecked.erase(currentVertex->getName());
         }
     }
 }
