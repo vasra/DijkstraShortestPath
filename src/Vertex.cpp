@@ -18,3 +18,8 @@ void Vertex::setPrevious(std::shared_ptr<Vertex>& prev)
 {
     this->previous = prev;
 }
+
+std::shared_ptr<Vertex>& Vertex::getPrevious()
+{
+    return previous;
+}

@@ -54,6 +54,6 @@ class PriorityQueue
 
         void printQueue();
         void addToQueue(std::shared_ptr<Vertex>& v, unsigned int d);
-        std::shared_ptr<const node> pop();
+        const std::shared_ptr<Vertex> pop();
 };
 #endif

@@ -42,7 +42,7 @@ void Graph::generate(float density, unsigned int minRange, unsigned int maxRange
                 randomProbability = static_cast<float>(probability(gen));
                 if(randomProbability < density )
                 {
-                    addEdge( *v, randomVertex, minRange, maxRange);
+                    addEdge( v, randomVertex, minRange, maxRange);
 
                     currentDensity = ( 2.0f * static_cast<float>(numOfEdges) ) / (static_cast<float>(numOfVertices) * (static_cast<float>(numOfVertices) - 1.0f ) );
 
@@ -83,10 +83,22 @@ void Graph::printGraph()
     std::cout << "------------" << std::endl;
     std::cout << "Vertices   : " << GetNumOfVertices() << std::endl;
     std::cout << "Edges      : " << GetNumOfEdges() << std::endl;
-    std::cout << "Density    : " << GetDensity() << std::endl;
+    std::cout << "Density    : " << GetDensity() << std::endl << std::endl;
 }
 
-void Graph::addEdge(Vertex& x, unsigned short neighbour, unsigned int minRange, unsigned int maxRange, unsigned int weight)
+void Graph::printShortestPath(std::vector<unsigned short>& path)
+{
+    std::cout << "The shortest path from vertex " << path.back() << " to vertex " << path.front() << " is the below with a cost of " << pathCost(path) << std::endl;
+    for (auto v = path.rbegin(); v != path.rend(); v++)
+    {
+        if (v != path.rend() - 1)
+            std::cout << *v << " -> ";
+        else
+            std::cout << *v << std::endl;
+    }
+}
+
+void Graph::addEdge(std::shared_ptr<Vertex>& v, unsigned short neighbour, unsigned int minRange, unsigned int maxRange, unsigned int weight)
 {
     //unsigned int w;
     if (weight == 0)
@@ -99,17 +111,35 @@ void Graph::addEdge(Vertex& x, unsigned short neighbour, unsigned int minRange, 
     /*else
         w = weight;*/
 
-    SetEdgeValue( x, neighbour, weight );
+    SetEdgeValue( v, neighbour, weight );
     SetNumOfEdges( numOfEdges + 1 );
 }
 
-void Graph::deleteEdge(Vertex& x, unsigned short neighbour)
+void Graph::deleteEdge(std::shared_ptr<Vertex>& v, unsigned short neighbour)
 {
-    SetEdgeValue( x, neighbour, 0 );
+    SetEdgeValue( v, neighbour, 0 );
     SetNumOfEdges( numOfEdges - 1 );
 }
 
-void Graph::dijkstraShortestPath(unsigned short start, unsigned short destination)
+int Graph::pathCost(std::vector<unsigned short>& path)
+{
+    int cost = 0;
+    for (auto v : path)
+    {
+        std::shared_ptr<Vertex> vertex = getVertexFromName(v), previous = vertex->getPrevious();
+        if (previous != nullptr)
+        {
+            auto edge = std::find_if(vertex->getAdjacencyList().begin(), vertex->getAdjacencyList().end(), [&previous](std::pair<unsigned short, unsigned short> p) {
+                return p.first == previous->getName();
+                });
+
+            cost += edge->second;
+        }
+    }
+    return cost;
+}
+
+std::vector<unsigned short> Graph::dijkstraShortestPath(unsigned short start, unsigned short destination)
 {
     // Data structures that will be used in the Dikstra algorithm:
     // unchecked     - A set that will hold the names of all the vertices that the algorithm hasn't processed yet
@@ -122,19 +152,18 @@ void Graph::dijkstraShortestPath(unsigned short start, unsigned short destinatio
     std::map<unsigned short, unsigned short> distances;
     std::vector<unsigned short> path;
     PriorityQueue queue;
-    auto currentVertex = *(std::find_if(vertices.begin(), vertices.end(), [&start](std::shared_ptr<Vertex> v) { return v->getName() == start; } ));
+    auto currentVertex = getVertexFromName(start);
 
     // Initialize all vertices' distances to infinite (INT_MAX), except for the starting vertex.
     for (int i = 0; i < this->GetNumOfVertices(); i++)
     {
-        auto it = std::find_if(vertices.begin(), vertices.end(), [&i](std::shared_ptr<Vertex> v) { return v->getName() == i; });
+        auto it = getVertexFromName(i);
         if (i != start)
-        {
-            distances.emplace((*it)->getName(), INT_MAX);
-            unchecked.insert(i);
-        }
+            distances.emplace(it->getName(), INT_MAX);
         else
-            distances.emplace((*it)->getName(), 0);
+            distances.emplace(it->getName(), 0);
+
+        unchecked.insert(i);
     }
 
     // Keep traversing the graph until there are no more vertices to process
@@ -145,27 +174,34 @@ void Graph::dijkstraShortestPath(unsigned short start, unsigned short destinatio
             if (unchecked.find(v.first) != unchecked.end())
             {
                 // Find the neighbour v in the distances map...
-                auto neighbour = distances.find(v.first);/*std::find_if(distances.begin(), distances.end(), [&v](std::pair<std::shared_ptr<Vertex>, unsigned short> p) {
-                    return p.first->getName() == v.first;
-                    });*/
+                auto neighbour = distances.find(v.first);
+                auto neighbourPointer = getVertexFromName(neighbour->first);
 
-                    // ...also find the current vertex in the distances map
-                auto current = distances.find(currentVertex->getName());/*std::find_if(distances.begin(), distances.end(), [&currentVertex](std::pair<std::shared_ptr<Vertex>, unsigned short> p) {
-                    return currentVertex->getName() == p.first->getName();
-                    });*/
+                // ...also find the current vertex in the distances map
+                auto current = distances.find(currentVertex->getName());
 
                 if (v.second + current->second < neighbour->second)
                 {
-                    neighbour->second = v.second + current->second;
-                    auto neighbourPointer = std::find_if(this->getVertices().begin(), this->getVertices().end(), [&neighbour](std::shared_ptr<Vertex> vptr) {
-                        return neighbour->first == vptr->getName();
-                        });
-                    (*neighbourPointer)->setPrevious(currentVertex);
+                    neighbour->second = v.second + current->second;                    
+                    neighbourPointer->setPrevious(currentVertex);
                 }
+
+                queue.addToQueue(neighbourPointer, neighbour->second);
             }
-            unchecked.erase(currentVertex->getName());
         }
+        unchecked.erase(currentVertex->getName());
+        currentVertex = queue.pop();
     }
+
+    std::shared_ptr<Vertex> pathVertex = getVertexFromName(destination);
+    path.emplace_back(pathVertex->getName());
+    while (pathVertex->getPrevious() != nullptr)
+    {
+        path.emplace_back(pathVertex->getPrevious()->getName());
+        pathVertex = pathVertex->getPrevious();
+    }
+
+    return path;
 }
 
 unsigned short Graph::GetNumOfVertices()
@@ -218,28 +254,31 @@ void Graph::SetMaxRange(unsigned int maxRange)
     this->maxRange = maxRange;
 }
 
-void Graph::SetEdgeValue(Vertex& x, unsigned short neighbour, unsigned int weight)
+void Graph::SetEdgeValue(std::shared_ptr<Vertex>& v, unsigned short neighbour, unsigned int weight)
 {
+    auto neighbourPointer = getVertexFromName(neighbour);
     if (weight == 0)
     {
-        x.getAdjacencyList().remove_if([&neighbour](std::pair<unsigned short, unsigned int> p) { return p.first == neighbour; });
-        auto it = std::find_if(vertices.begin(), vertices.end(), [&neighbour](std::shared_ptr<Vertex>& v) {
-            return v->getName() == neighbour;
-            });
-        (*it)->getAdjacencyList().remove_if([&x](std::pair<unsigned short, unsigned int> p) { return p.first == x.getName(); });
+        v->getAdjacencyList().remove_if([&neighbour](std::pair<unsigned short, unsigned int> p) { return p.first == neighbour; });
+        neighbourPointer->getAdjacencyList().remove_if([&v](std::pair<unsigned short, unsigned int> p) { return p.first == v->getName(); });
     }
     else
     {
-        x.getAdjacencyList().emplace_front(neighbour, weight);
-        auto it = std::find_if(vertices.begin(), vertices.end(), [&neighbour](std::shared_ptr<Vertex>& v) {
-            return v->getName() == neighbour;
-            });
-
-        (*it)->getAdjacencyList().emplace_front(x.getName(), weight);
+        v->getAdjacencyList().emplace_front(neighbour, weight);
+        neighbourPointer->getAdjacencyList().emplace_front(v->getName(), weight);
     }
 }
 
-std::vector<std::shared_ptr<Vertex>>& Graph::getVertices()
+const std::vector<std::shared_ptr<Vertex>>& Graph::getVertices()
 {
     return vertices;
+}
+
+const std::shared_ptr<Vertex>& Graph::getVertexFromName(unsigned short name)
+{
+    auto vertex = std::find_if(vertices.begin(), vertices.end(), [&name](std::shared_ptr<Vertex>& v) {
+        return v->getName() == name;
+        });
+
+    return *vertex;
 }

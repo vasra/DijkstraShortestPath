@@ -4,6 +4,7 @@
 unsigned int main()
 {
     Graph g{ 10, 0.8f, 1, 10 };
+    std::vector<unsigned short> path;
     g.printGraph();
     
     std::cout << "Choose the starting and ending vertex to run Dijkstra's shortest path." << std::endl;
@@ -20,5 +21,7 @@ unsigned int main()
         std::cin  >> destination;
     } while (destination < 0 || destination > g.GetNumOfVertices() - 1 || destination == start);
 
+    path = g.dijkstraShortestPath(start, destination);
+    g.printShortestPath(path);
     return 0;
 }

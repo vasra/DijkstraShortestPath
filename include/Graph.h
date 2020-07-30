@@ -8,6 +8,7 @@
 #include <ctime>
 #include <random>
 #include <string>
+#include <numeric>
 #include "Vertex.h"
 #include "PriorityQueue.h"
 
@@ -19,9 +20,11 @@ class Graph
 
         void generate(float density, unsigned int minRange, unsigned int maxRange);
         void printGraph();
-        void addEdge(Vertex& x, unsigned short neighbour, unsigned int minRange, unsigned int maxRange, unsigned int weight = 0);
-        void deleteEdge(Vertex& x, unsigned short neighbour);
-        void dijkstraShortestPath(unsigned short start, unsigned short destination);
+        void printShortestPath(std::vector<unsigned short>& path);
+        void addEdge(std::shared_ptr<Vertex>& v, unsigned short neighbour, unsigned int minRange, unsigned int maxRange, unsigned int weight = 0);
+        void deleteEdge(std::shared_ptr<Vertex>& v, unsigned short neighbour);
+        int pathCost(std::vector<unsigned short>& path);
+        std::vector<unsigned short> dijkstraShortestPath(unsigned short start, unsigned short destination);
 
         // Getters
         unsigned short GetNumOfVertices();
@@ -29,7 +32,8 @@ class Graph
         float GetDensity();
         unsigned int GetMinRange();
         unsigned int GetMaxRange();
-        std::vector<std::shared_ptr<Vertex>>& getVertices();
+        const std::vector<std::shared_ptr<Vertex>>& getVertices();
+        const std::shared_ptr<Vertex>& getVertexFromName(unsigned short name);
 
         // Setters
         void SetNumOfVertices(unsigned  short numOfVertices);
@@ -37,7 +41,7 @@ class Graph
         void SetDensity(float density);
         void SetMinRange(unsigned int minRange);
         void SetMaxRange(unsigned int maxRange);
-        void SetEdgeValue(Vertex& x, unsigned short neighbour, unsigned int weight);
+        void SetEdgeValue(std::shared_ptr<Vertex>& v, unsigned short neighbour, unsigned int weight);
 
     private:
         unsigned short numOfVertices;                       // the total number of vertices in the graph
