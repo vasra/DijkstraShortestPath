@@ -4,15 +4,14 @@
 #include <map>
 #include <memory>
 
-class Vertex
-{
+class Vertex {
     public:
         Vertex(unsigned short name);
         virtual ~Vertex();
         std::forward_list<std::pair<unsigned short, unsigned int>>& getAdjacencyList();
         unsigned short getName();
-        void setPrevious(std::shared_ptr<Vertex>& prev);
-        std::shared_ptr<Vertex>& getPrevious();
+        void setPrevious(std::shared_ptr<Vertex> prev);
+        std::shared_ptr<Vertex> getPrevious();
 
     private:
         unsigned short name;                                                           // The name of the vertex.  It will be a number, e.g. 0, 1, 2, 3 etc.

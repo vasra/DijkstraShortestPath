@@ -1,8 +1,7 @@
 #include "Graph.h"
 #include "PriorityQueue.h"
 
-unsigned int main()
-{
+unsigned int main() {
     Graph g{ 10, 0.8f, 1, 10 };
     std::vector<unsigned short> path;
     g.printGraph();
