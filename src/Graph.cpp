@@ -4,9 +4,7 @@ Graph::Graph(unsigned short numOfVertices, float density, unsigned int minRange,
                                                                                        numOfEdges(0),
                                                                                        density(density),
                                                                                        minRange(minRange),
-                                                                                       maxRange(maxRange) {
-    generate(density, minRange, maxRange);
-}
+                                                                                       maxRange(maxRange) { generate(density, minRange, maxRange); }
 
 Graph::~Graph(){}
 
