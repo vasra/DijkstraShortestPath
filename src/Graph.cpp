@@ -50,7 +50,7 @@ void Graph::generate(float density, unsigned int minRange, unsigned int maxRange
 void Graph::printGraph() {
     std::string s;
     std::cout << "---------------------------------------------------------------" << std::endl;
-    std::cout << "                        GRAPH                        "           << std::endl;
+    std::cout << "                        GRAPH                                  " << std::endl;
     std::cout << "---------------------------------------------------------------" << std::endl;
     std::cout << "Vertex | Adjacency List: vertex(edge weight) -> next neighbour"  << std::endl;
     std::cout << "---------------------------------------------------------------" << std::endl;
