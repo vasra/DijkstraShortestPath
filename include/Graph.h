@@ -1,14 +1,10 @@
 #ifndef GRAPH_H
 #define GRAPH_H
-#include <stdlib.h>
 #include <iostream>
 #include <vector>
 #include <set>
-#include <cmath>
-#include <ctime>
 #include <random>
 #include <string>
-#include <numeric>
 #include "Vertex.h"
 #include "PriorityQueue.h"
 
